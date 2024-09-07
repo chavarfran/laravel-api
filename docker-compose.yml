@@ -1,0 +1,71 @@
+services:
+  # LARAVEL CONTAINER
+  laravel: &laravel
+    image: fchavarriar/laravel-api
+    tty: true
+    ports:
+      - "8001:80"
+      - "2222:2222"
+    env_file:
+      - .env
+    environment:
+      GIT_REPO: ${LARAVEL_REPO}
+      GIT_TOKEN: ${GIT_TOKEN}
+    volumes:
+      - laravel:/var/www/${LARAVEL_REPO}
+    networks:
+      - test-laravel
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/fs_ok.lock"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  # QUEUE CONTAINER
+  queue:
+    <<: *laravel
+    ports: []
+    command: ["/opt/scripts/entry-queue.sh"]
+    healthcheck:
+      test: []
+    depends_on:
+      laravel:
+        condition: service_healthy
+  # DATABASE CONTAINER
+  database:
+    user: root
+    container_name: postgres
+    image: postgres:latest
+    environment:
+      - DATABASE_HOST=127.0.0.1
+      - POSTGRES_DB=local
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+    ports:
+      - "5432:5432"
+    volumes:
+      - database:/var/lib/postgresql/data
+    networks:
+      - test-laravel
+  # PGADMIN CONTAINER
+  pgadmin:
+    user: root
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - database:/var/lib/pgadmin
+    networks:
+      - test-laravel
+    depends_on:
+      - database
+networks:
+  test-laravel:
+volumes:
+  laravel:
+  database:

@@ -1,0 +1,43 @@
+{
+    "name": "VSCode container",
+    "dockerComposeFile": [
+        "../../docker-compose.yml"
+    ],
+    "service": "laravel",
+    "shutdownAction": "none",
+    "workspaceFolder": "/var/www/",
+    "features": {
+        "ghcr.io/alanfzf/features/bat:1.0.2": {},
+        "ghcr.io/alanfzf/features/zoxide:latest": {},
+        "ghcr.io/devcontainers-contrib/features/starship:latest": {},
+        "ghcr.io/devcontainers/features/github-cli:latest": {}
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {},
+            "extensions": [
+                //php
+                "bmewburn.vscode-intelephense-client",
+                //laravel
+                "apility.beautify-blade",
+                "shufo.vscode-blade-formatter",
+                "porifa.laravel-intelephense",
+                "codingyu.laravel-goto-view",
+                "TechieCouch.laravel-php-essentials",
+                //identation
+                "EditorConfig.EditorConfig",
+                "junstyle.php-cs-fixer",
+                "mansoorkhan96.php-cs-fixer",
+                "esbenp.prettier-vscode",
+                //git and github
+                "GitHub.vscode-pull-request-github",
+                "eamodio.gitlens",
+                //tools
+                "adpyke.codesnap"
+            ]
+        }
+    },
+    "mounts": [
+        "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached"
+    ]
+}
