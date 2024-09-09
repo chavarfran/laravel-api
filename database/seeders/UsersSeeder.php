@@ -22,9 +22,9 @@ class UsersSeeder extends Seeder
         Schema::enableForeignKeyConstraints();
 
         User::create([
-            'name' => 'Admin',
-            'email' => 'admin@jsonapi.com',
-            'password' => 'secret'
+            'name' => 'Francisco',
+            'email' => 'fchav@gmail.com',
+            'password' => '12345678'
         ]);
     }
 }

@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V2\Auth\RegisterController;
 use App\Http\Controllers\Api\V2\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V2\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\V2\MeController;
+use App\Http\Controllers\Api\V2\NewsController;
 use LaravelJsonApi\Laravel\Facades\JsonApiRoute;
 use LaravelJsonApi\Laravel\Http\Controllers\JsonApiController;
 
@@ -29,9 +30,13 @@ Route::prefix('v2')->middleware('json.api')->group(function () {
     Route::post('/register', RegisterController::class);
     Route::post('/password-forgot', ForgotPasswordController::class);
     Route::post('/password-reset', ResetPasswordController::class)->name('password.reset');
+
+
 });
 
 JsonApiRoute::server('v2')->prefix('v2')->resources(function (ResourceRegistrar $server) {
+    Route::get('/news', [NewsController::class, 'getNews']);
+
     $server->resource('users', JsonApiController::class);
     Route::get('me', [MeController::class, 'readProfile']);
     Route::patch('me', [MeController::class, 'updateProfile']);
