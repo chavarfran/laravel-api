@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
-            $table->string('title', 500);
-            $table->text('description');
-            $table->text('content');
-            $table->string('url');
-            $table->string('url_to_image')->nullable();
+            $table->string('title', 1000);
+            $table->text('description')->nullable();
+            $table->text('content')->nullable();
+            $table->string('url', 1000);
+            $table->string('url_to_image', 1000)->nullable();
             $table->timestamp('published_at');
 
             // Relaciones
