@@ -35,7 +35,8 @@ Route::prefix('v2')->middleware('json.api')->group(function () {
 });
 
 JsonApiRoute::server('v2')->prefix('v2')->resources(function (ResourceRegistrar $server) {
-    Route::get('/news', [NewsController::class, 'NewsEverything']);
+    Route::get('/news/', [NewsController::class, 'News']);
+    Route::get('/news/everything', [NewsController::class, 'NewsEverything']);
     Route::get('/news/category', [NewsController::class, 'NewsByCategory']);
 
 
