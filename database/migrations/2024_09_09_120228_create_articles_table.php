@@ -13,6 +13,17 @@ return new class extends Migration
     {
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
+            $table->string('title');
+            $table->string('description');
+            $table->text('content');
+            $table->string('url');
+            $table->string('url_to_image')->nullable();
+            $table->timestamp('published_at');
+
+            // Relaciones
+            $table->foreignId('author_id')->constrained('authors');
+            $table->foreignId('category_id')->constrained('categories');
+
             $table->timestamps();
         });
     }
