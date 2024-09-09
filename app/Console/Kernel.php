@@ -21,6 +21,7 @@ class Kernel extends ConsoleKernel
         if (env('IS_DEMO')) {
             $schedule->command('app:reset-default-users')->cron($scheduledInterval);
         }
+        $schedule->command('fetch:articles')->dailyAt('06:45');
     }
 
     /**

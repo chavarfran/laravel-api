@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('description');
+            $table->string('title', 500);
+            $table->text('description');
             $table->text('content');
             $table->string('url');
             $table->string('url_to_image')->nullable();

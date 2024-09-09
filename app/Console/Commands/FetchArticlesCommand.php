@@ -52,7 +52,7 @@ class FetchArticlesCommand extends Command
             $response = Http::get($url, [
                 'category' => $category,
                 'apiKey' => $apiKey,
-                'language' => 'es',
+                'language' => 'en',
             ]);
 
             $articles = $response->json()['articles'] ?? [];
