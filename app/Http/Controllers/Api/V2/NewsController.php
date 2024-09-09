@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 
 class NewsController extends Controller
 {
-    public function getNews()
+    public function getNews(Request $request)
     {
         // Obtener la clave API desde el archivo .env
         $apiKey = env('NEWS_API_KEY');
@@ -18,9 +18,10 @@ class NewsController extends Controller
 
         // Parámetros de consulta
         $response = Http::get($url, [
-            'q' => 'Odatv.com',
-            'from' => '2024-09-06',
-            'sortBy' => 'publishedAt',
+            'q' => $request->q,
+            'from' => $request->from,
+            'sortBy' => $request->sortBy,
+            'languaje' => 'en',
             'apiKey' => $apiKey,
         ]);
 
