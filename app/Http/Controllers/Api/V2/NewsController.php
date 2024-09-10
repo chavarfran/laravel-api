@@ -56,16 +56,26 @@ class NewsController extends Controller
 
     public function News(Request $request)
     {
-        $cacheKey = 'articles_category_' . $request->category_id;
+        $categoryId = $request->input('category_id');
+        $searchQuery = $request->input('query'); // Accede al parámetro 'query' correctamente
+
+        $cacheKey = 'articles_category_' . $categoryId . '_query_' . ($searchQuery ?? ''); // Agrega la query al cacheKey
         $cacheTime = 60;
 
         try {
             // Check if data is in cache
-            $articles = Cache::remember($cacheKey, $cacheTime, function () use ($request) {
-                return Article::has('category')
-                    ->where('category_id', $request->category_id)
-                    ->orderBy('published_at', 'desc')
-                    ->get()
+            $articles = Cache::remember($cacheKey, $cacheTime, function () use ($categoryId, $searchQuery) {
+                $query = Article::has('category')
+                    ->where('category_id', $categoryId)
+                    ->orderBy('published_at', 'desc');
+
+                // Si hay un término de búsqueda, aplicamos un filtro adicional
+                if ($searchQuery) {
+                    $query->where('title', 'like', '%' . $searchQuery . '%')
+                        ->orWhere('description', 'like', '%' . $searchQuery . '%');
+                }
+
+                return $query->get()
                     ->map(function ($article) {
                         return [
                             'source' => [
