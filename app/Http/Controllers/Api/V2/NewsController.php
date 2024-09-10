@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 use App\Models\Article;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -55,31 +56,33 @@ class NewsController extends Controller
 
     public function News(Request $request)
     {
-        $response = null;
-        $statusCode = null;
+        $cacheKey = 'articles_category_' . $request->category_id;
+        $cacheTime = 60;
 
         try {
-            $articles = Article::has('category')
-                ->where('category_id', $request->category_id)
-                ->orderBy('published_at', 'desc')
-                ->get()
-                ->map(function ($article) {
-                    return [
-                        'source' => [
-                            'id' => $article->id,
-                            'name' => $article->author->name ?? 'Unknown'
-                        ],
-                        'author' => $article->author->name ?? 'Unknown',
-                        'title' => $article->title,
-                        'description' => $article->description,
-                        'url' => $article->url,
-                        'urlToImage' => $article->url_to_image,
-                        'publishedAt' => $article->published_at,
-                        'content' => $article->content,
-                    ];
-                });
+            // Check if data is in cache
+            $articles = Cache::remember($cacheKey, $cacheTime, function () use ($request) {
+                return Article::has('category')
+                    ->where('category_id', $request->category_id)
+                    ->orderBy('published_at', 'desc')
+                    ->get()
+                    ->map(function ($article) {
+                        return [
+                            'source' => [
+                                'id' => $article->id,
+                                'name' => $article->author->name ?? 'Unknown'
+                            ],
+                            'author' => $article->author->name ?? 'Unknown',
+                            'title' => $article->title,
+                            'description' => $article->description,
+                            'url' => $article->url,
+                            'urlToImage' => $article->url_to_image,
+                            'publishedAt' => $article->published_at,
+                            'content' => $article->content,
+                        ];
+                    });
+            });
 
-            $response = $articles;
             $statusCode = Response::HTTP_OK;
         } catch (Throwable $th) {
             Log::error($th->getMessage());
@@ -88,7 +91,7 @@ class NewsController extends Controller
         }
 
         return response()->json(
-            $response,
+            $articles,
             $statusCode
         );
     }
