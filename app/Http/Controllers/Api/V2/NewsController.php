@@ -66,7 +66,7 @@ class NewsController extends Controller
                 ->map(function ($article) {
                     return [
                         'source' => [
-                            'id' => null,  // You can adjust this if you have a source id
+                            'id' => $article->id,  // You can adjust this if you have a source id
                             'name' => $article->author->name ?? 'Unknown'  // Assuming author name is the source
                         ],
                         'author' => $article->author->name ?? 'Unknown',  // Handling null author case
@@ -80,6 +80,41 @@ class NewsController extends Controller
                 });
 
             $response = $articles;
+            $statusCode = Response::HTTP_OK;
+        } catch (Throwable $th) {
+            Log::error($th->getMessage());
+            $response = $th->getMessage();
+            $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+        }
+
+        return response()->json(
+            $response,
+            $statusCode
+        );
+    }
+
+    public function NewsById($id)
+    {
+        $response = null;
+        $statusCode = null;
+
+        try {
+            $article = Article::with('author', 'category')->findOrFail($id);
+
+            $response = [
+                'id' => $article->id,
+                'title' => $article->title,
+                'description' => $article->description,
+                'content' => $article->content,
+                'url' => $article->url,
+                'url_to_image' => $article->url_to_image,
+                'published_at' => $article->published_at,
+                'author' => $article->author->name,
+                'author_id' => $article->author->id,
+                'category' => $article->category->name,
+                'category_id' => $article->category->id,
+            ];
+
             $statusCode = Response::HTTP_OK;
         } catch (Throwable $th) {
             Log::error($th->getMessage());
