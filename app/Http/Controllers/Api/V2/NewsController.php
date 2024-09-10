@@ -134,15 +134,17 @@ class NewsController extends Controller
         $statusCode = null;
         try {
 
+            // Obtener el artículo original
             $article = Article::with('author', 'category')->findOrFail($id);
             $author_id = $article->author_id;
             $category_id = $article->category_id;
 
-            // Obtener los primeros 5 artículos por categoría
+            // Obtener los primeros 4 artículos por categoría, excluyendo el artículo original
             $categoryArticles = Article::with('author', 'category')
                 ->where('category_id', $category_id)
+                ->where('id', '!=', $id)  // Excluir el artículo original
                 ->orderBy('published_at', 'desc')
-                ->take(5)
+                ->take(4)
                 ->get()
                 ->map(function ($article) {
                     return [
@@ -160,11 +162,12 @@ class NewsController extends Controller
                     ];
                 });
 
-            // Obtener los primeros 5 artículos por autor
+            // Obtener los primeros 4 artículos por autor, excluyendo el artículo original
             $authorArticles = Article::with('author', 'category')
                 ->where('author_id', $author_id)
+                ->where('id', '!=', $id)  // Excluir el artículo original
                 ->orderBy('published_at', 'desc')
-                ->take(5)
+                ->take(4)
                 ->get()
                 ->map(function ($article) {
                     return [
@@ -197,9 +200,7 @@ class NewsController extends Controller
             $response = $th->getMessage();
             $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
         }
-        return response()->json(
-            $response,
-            $statusCode
-        );
+
+        return response()->json($response, $statusCode);
     }
 }
