@@ -66,15 +66,15 @@ class NewsController extends Controller
                 ->map(function ($article) {
                     return [
                         'source' => [
-                            'id' => $article->id,  // You can adjust this if you have a source id
-                            'name' => $article->author->name ?? 'Unknown'  // Assuming author name is the source
+                            'id' => $article->id,
+                            'name' => $article->author->name ?? 'Unknown'
                         ],
-                        'author' => $article->author->name ?? 'Unknown',  // Handling null author case
+                        'author' => $article->author->name ?? 'Unknown',
                         'title' => $article->title,
                         'description' => $article->description,
                         'url' => $article->url,
                         'urlToImage' => $article->url_to_image,
-                        'publishedAt' => $article->published_at,  // Format the date correctly
+                        'publishedAt' => $article->published_at,
                         'content' => $article->content,
                     ];
                 });
@@ -122,6 +122,55 @@ class NewsController extends Controller
             $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
         }
 
+        return response()->json(
+            $response,
+            $statusCode
+        );
+    }
+
+    public function NewsAuthorCategory($id, $category_id) {
+        $response = null;
+        $statusCode = null;
+        try {
+
+            // Obtener los primeros 5 artículos por categoría
+            $categoryArticles = Article::with('author', 'category')
+                ->where('category_id', $category_id)
+                ->orderBy('published_at', 'desc')
+                ->take(5)
+                ->get()
+                ->map(function ($article) {
+                    return [
+                        'source' => [
+                            'id' => $article->id,
+                            'name' => $article->author->name ?? 'Desconocido'
+                        ],
+                        'author' => $article->author->name ?? 'Desconocido',
+                        'title' => $article->title,
+                        'description' => $article->description,
+                        'url' => $article->url,
+                        'urlToImage' => $article->url_to_image,
+                        'publishedAt' => $article->published_at,
+                        'content' => $article->content,
+                    ];
+                });
+
+            // Obtener los primeros 5 artículos por autor
+
+            // Combina los resultados en una sola respuesta
+            $response = [
+                'categoryArticles' => $categoryArticles,
+            ];
+            $statusCode = Response::HTTP_OK;
+        } catch (\InvalidArgumentException $e) {
+            Log::error($e->getMessage());
+            $response = ['error' => 'Invalid parameters'];
+            $statusCode = Response::HTTP_BAD_REQUEST;
+        } catch (Throwable $th) {
+            Log::error($th->getMessage());
+            $response = $th->getMessage();
+            $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+        }
         return response()->json(
             $response,
             $statusCode
