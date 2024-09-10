@@ -128,10 +128,15 @@ class NewsController extends Controller
         );
     }
 
-    public function NewsAuthorCategory($id, $category_id) {
+    public function NewsAuthorCategory($id)
+    {
         $response = null;
         $statusCode = null;
         try {
+
+            $article = Article::with('author', 'category')->findOrFail($id);
+            $author_id = $article->author_id;
+            $category_id = $article->category_id;
 
             // Obtener los primeros 5 artículos por categoría
             $categoryArticles = Article::with('author', 'category')
@@ -156,10 +161,31 @@ class NewsController extends Controller
                 });
 
             // Obtener los primeros 5 artículos por autor
+            $authorArticles = Article::with('author', 'category')
+                ->where('author_id', $author_id)
+                ->orderBy('published_at', 'desc')
+                ->take(5)
+                ->get()
+                ->map(function ($article) {
+                    return [
+                        'source' => [
+                            'id' => $article->id,
+                            'name' => $article->author->name ?? 'Desconocido'
+                        ],
+                        'author' => $article->author->name ?? 'Desconocido',
+                        'title' => $article->title,
+                        'description' => $article->description,
+                        'url' => $article->url,
+                        'urlToImage' => $article->url_to_image,
+                        'publishedAt' => $article->published_at,
+                        'content' => $article->content,
+                    ];
+                });
 
             // Combina los resultados en una sola respuesta
             $response = [
                 'categoryArticles' => $categoryArticles,
+                'authorArticles' => $authorArticles,
             ];
             $statusCode = Response::HTTP_OK;
         } catch (\InvalidArgumentException $e) {
